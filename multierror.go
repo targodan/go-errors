@@ -1,17 +1,24 @@
-package make
+package errors
 
-type multiError struct {
+// MultiErrorPrefix will be prepended to the Error() output
+// of any MultiError, that actually consists of multiple errors.
+// You can overwrite this if you want to.
+var MultiErrorPrefix = "Multiple errors occured:\n"
+
+// MultiError is an implementation of error that consists
+// of arbitrarily many sub errors.
+type MultiError struct {
 	Errors []error
 }
 
-// MultiError returns an error consisting of multiple errors.
+// NewMultiError returns an error consisting of multiple errors.
 // If you give it a MultiError, it will append its sub errors
 // correctly.
-func MultiError(errors ...error) error {
-	me := &multiError{Errors: make([]error, 0)}
+func NewMultiError(errors ...error) *MultiError {
+	me := &MultiError{Errors: make([]error, 0)}
 	for _, err := range errors {
 		if err != nil {
-			merr, isMulti := err.(*multiError)
+			merr, isMulti := err.(*MultiError)
 			if isMulti {
 				me.Errors = append(me.Errors, merr.Errors...)
 			} else {
@@ -25,12 +32,12 @@ func MultiError(errors ...error) error {
 	return me
 }
 
-func (e *multiError) Error() string {
+func (e *MultiError) Error() string {
 	if len(e.Errors) == 1 {
 		return e.Errors[0].Error()
 	}
 
-	text := "Multiple errors occured:\n"
+	text := MultiErrorPrefix
 	for i, err := range e.Errors {
 		text += err.Error()
 		if i+1 < len(e.Errors) {
@@ -38,4 +45,11 @@ func (e *multiError) Error() string {
 		}
 	}
 	return text
+}
+
+// IsMultiError returns true if the given error was a
+// MultiError.
+func IsMultiError(err error) bool {
+	_, ok := err.(*MultiError)
+	return ok
 }
