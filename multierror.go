@@ -6,13 +6,14 @@ package errors
 var MultiErrorPrefix = "Multiple errors occured:\n"
 
 // MultiError is an implementation of error that consists
-// of arbitrarily many sub errors.
+// of arbitrarily many errors on the same logical level.
 type MultiError struct {
 	Errors []error
 }
 
-// NewMultiError returns an error consisting of multiple errors.
-// If you give it a MultiError, it will append its sub errors
+// NewMultiError returns an error consisting of multiple errors
+// on the same logical level.
+// If you provide a MultiError, it will append its errors
 // correctly.
 func NewMultiError(errors ...error) error {
 	me := &MultiError{Errors: make([]error, 0)}
