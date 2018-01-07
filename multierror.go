@@ -14,7 +14,7 @@ type MultiError struct {
 // NewMultiError returns an error consisting of multiple errors.
 // If you give it a MultiError, it will append its sub errors
 // correctly.
-func NewMultiError(errors ...error) *MultiError {
+func NewMultiError(errors ...error) error {
 	me := &MultiError{Errors: make([]error, 0)}
 	for _, err := range errors {
 		if err != nil {

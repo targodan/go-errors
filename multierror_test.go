@@ -8,26 +8,34 @@ import (
 )
 
 func TestNewMultiError(t *testing.T) {
+	var err error
 	Convey("basic error creation should work", t, func() {
 		errs := []error{errors.New("err1"), errors.New("err2"), errors.New("err3")}
-		me := NewMultiError(errs...)
+		err = NewMultiError(errs...)
+		me, _ := err.(*MultiError)
 
 		So(me.Errors, ShouldResemble, errs)
 	})
 	Convey("nil values should be filtered", t, func() {
 		errs := []error{nil, errors.New("err1"), nil, errors.New("err3"), nil}
 		expErrs := []error{errors.New("err1"), errors.New("err3")}
-		me := NewMultiError(errs...)
+		err = NewMultiError(errs...)
+		me, _ := err.(*MultiError)
 
 		So(me.Errors, ShouldResemble, expErrs)
 	})
+	Convey("no errors should result in nil", t, func() {
+		err = NewMultiError()
+
+		So(err, ShouldBeNil)
+	})
 	Convey("the return value of MultiError should be nil", t, func() {
 		Convey("if it is presented with only one nil error", func() {
-			err := NewMultiError(nil)
+			err = NewMultiError(nil)
 			So(err, ShouldBeNil)
 		})
 		Convey("if it is presented with multiple nil errors", func() {
-			err := NewMultiError(nil, nil, nil, nil, nil)
+			err = NewMultiError(nil, nil, nil, nil, nil)
 			So(err, ShouldBeNil)
 		})
 	})
@@ -36,23 +44,25 @@ func TestNewMultiError(t *testing.T) {
 		outerErrs := []error{errors.New("err1"), errors.New("err2"), NewMultiError(innerErrs...), errors.New("err3")}
 		expected := []error{errors.New("err1"), errors.New("err2"), errors.New("errA"), errors.New("errB"), errors.New("err3")}
 
-		me := NewMultiError(outerErrs...)
+		err = NewMultiError(outerErrs...)
+		me, _ := err.(*MultiError)
 
 		So(me.Errors, ShouldResemble, expected)
 	})
 }
 
 func TestMultiErrorString(t *testing.T) {
+	var err error
 	Convey("simple errors should stay simple", t, func() {
 		simple := errors.New("just a simple error")
-		err := NewMultiError(simple)
+		err = NewMultiError(simple)
 
 		So(err.Error(), ShouldEqual, simple.Error())
 	})
 	Convey("on multiple errors", t, func() {
 		errA := errors.New("an error")
 		errB := errors.New("another error")
-		err := NewMultiError(errA, errB)
+		err = NewMultiError(errA, errB)
 
 		Convey("all errors should be separated by a newline", func() {
 			So(err.Error(), ShouldContainSubstring, errA.Error()+"\n"+errB.Error())
