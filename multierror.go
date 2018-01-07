@@ -5,11 +5,18 @@ type multiError struct {
 }
 
 // MultiError returns an error consisting of multiple errors.
+// If you give it a MultiError, it will append its sub errors
+// correctly.
 func MultiError(errors ...error) error {
 	me := &multiError{Errors: make([]error, 0)}
 	for _, err := range errors {
 		if err != nil {
-			me.Errors = append(me.Errors, err)
+			merr, isMulti := err.(*multiError)
+			if isMulti {
+				me.Errors = append(me.Errors, merr.Errors...)
+			} else {
+				me.Errors = append(me.Errors, err)
+			}
 		}
 	}
 	if len(me.Errors) == 0 {
