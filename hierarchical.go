@@ -9,6 +9,10 @@ import (
 // in HierarchicalErrors.
 var HierarchicalErrorLevelSeparator = "\nPrevious error:\n"
 
+// HierarchicalErrorIndent is prepended to any line in a sub
+// of a HierarchicalError.
+var HierarchicalErrorIndent = "\t"
+
 // HierarchicalError represents a hierarchical combination
 // of errors. This is mostly meant to make errors more user
 // friendly while maintaining the original information.
@@ -48,7 +52,7 @@ func (e *HierarchicalError) Error() string {
 	if e.SubError != nil {
 		msg += HierarchicalErrorLevelSeparator
 		lines := strings.Split(e.SubError.Error(), "\n")
-		msg += "    " + strings.Join(lines, "\n    ")
+		msg += HierarchicalErrorIndent + strings.Join(lines, "\n"+HierarchicalErrorIndent)
 	}
 	return msg
 }
@@ -68,7 +72,7 @@ func Wrapf(newMsg string, subErr error, args ...interface{}) error {
 	return Wrap(fmt.Sprintf(newMsg, args...), subErr)
 }
 
-// WrapErr creates a new Error with the same message as the given error and a sub error.
+// WrapErr creates a new HierarchicalError with the same message as the given error and a sub error.
 func WrapErr(newErr, subErr error) error {
 	nNewErr := convert(newErr)
 
