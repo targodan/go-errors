@@ -11,7 +11,8 @@ func New(text string) error {
 }
 
 // Newf creates a new error with the given message.
-// See fmt.Printf for formatting.
+// See fmt.Printf and Errorf for formatting.
+// Calls standard errors.Errorf, so "%w" is supported.
 func Newf(format string, args ...interface{}) error {
 	return fmt.Errorf(format, args...)
 }
