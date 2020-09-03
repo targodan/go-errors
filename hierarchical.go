@@ -47,6 +47,10 @@ func (e *HierarchicalError) append(err error) {
 	}
 }
 
+func (e *HierarchicalError) Unwrap() error {
+	return e.SubError
+}
+
 func (e *HierarchicalError) Error() string {
 	msg := e.TopError.Error()
 	if e.SubError != nil {

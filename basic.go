@@ -13,5 +13,5 @@ func New(text string) error {
 // Newf creates a new error with the given message.
 // See fmt.Printf for formatting.
 func Newf(format string, args ...interface{}) error {
-	return New(fmt.Sprintf(format, args...))
+	return fmt.Errorf(format, args...)
 }
